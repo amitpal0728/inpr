@@ -12,3 +12,4 @@ torch
 wheel
 opencv-contrib-python-headless
 opencv-python-headless
+torchvision
