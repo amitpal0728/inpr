@@ -10,3 +10,5 @@ Pillow
 easyocr
 torch
 wheel
+opencv-contrib-python-headless
+opencv-python-headless
