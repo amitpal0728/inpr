@@ -39,46 +39,30 @@ def capture_video():
 
 # Function to process image and perform OCR
 def process_image(image):
-    image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Convert the image to grayscale
+    image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
     # Detection
-    lplate_data = cv2.CascadeClassifier('haarcascade_russian_plate_number.xml')
+    lplate_data = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_russian_plate_number.xml')
     found = lplate_data.detectMultiScale(image_gray)
 
-    if len(found) != 0:
-        w1 = 0
-        h1 = 0
-        for (x, y, w, h) in found:
-            if w > w1 and h > h1:
-                w1 = w
-                x1 = x
-                y1 = y
-                h1 = h
-            else:
-                break
-        cv2.rectangle(image, (x1, y1), (x1+w1, y1+h1), (0, 255, 0), 2)
-        cv2.rectangle(image, (x1, y1-40), (x1+w1, y1+h1-50), (0, 0, 0), -1)
+    # Process each detected plate
+    for (x, y, w, h) in found:
+        # Draw a rectangle around the detected plate
+        cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        
+        # Extract the plate region from the grayscale image
+        plate_image = image_gray[y:y+h, x:x+w]
 
-        plate_image = image_gray[y1:(y1+h1), x1-10:(x1+w1)+10]
-
-        # Extract text from plate image using EasyOCR
+        # Perform OCR on the plate image
         result = reader.readtext(plate_image)
         text = ' '.join([box[1] for box in result])
 
-        if len(found) != 0:
-            w1 = 0
-            h1 = 0
-            for (x, y, w, h) in found:
-                if w > w1 and h > h1:
-                    w1 = w
-                    x1 = x
-                    y1 = y
-                    h1 = h
-                else:
-                    break
-            cv2.putText(image, text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        # Display the recognized text on the image
+        cv2.putText(image, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
     return image
+
 
 # Sidebar options
 option = st.sidebar.selectbox("Choose Option", ["Webcam", "Upload Photo", "Upload Video"])
